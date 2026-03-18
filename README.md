@@ -10,7 +10,7 @@
 
 Ranquear candidatos e facilitar a decisão do RH na escolha do profissional mais adequado para cada vaga.
 
----
+--- 
 
 ## ⚙️ Como Funciona
 
