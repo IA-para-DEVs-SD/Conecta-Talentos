@@ -236,6 +236,105 @@ extrator = ExtratorPDF(max_paginas=20)
 
 ---
 
+## 📊 Diagrama UML — Fluxos do Sistema
+
+O diagrama abaixo unifica todos os requisitos e user stories do sistema ConectaTalentos, mostrando como os fluxos se conectam desde o cadastro de vagas até a visualização do ranking final.
+
+```mermaid
+flowchart TD
+    subgraph REQ1["Req 1 — Cadastro de Vagas"]
+        A1([RH acessa o sistema]) --> A2[Preenche dados da vaga\ntítulo, descrição, requisitos técnicos,\nexperiência mínima, competências]
+        A2 --> A3{Campos obrigatórios\npreenchidos?}
+        A3 -- Não --> A4[Exibe erro de validação]
+        A4 --> A2
+        A3 -- Sim --> A5[(Persiste vaga no banco)]
+        A5 --> A6[Vaga cadastrada com sucesso]
+        A6 --> A7[Listar / Editar vagas existentes]
+    end
+
+    subgraph REQ2["Req 2 — Upload de Currículos"]
+        B1([RH seleciona vaga]) --> B2[Faz upload de arquivo]
+        B2 --> B3{Formato é PDF?}
+        B3 -- Não --> B4[Retorna mensagem de erro descritiva]
+        B4 --> B2
+        B3 -- Sim --> B5[(Armazena PDF original)]
+        B5 --> B6[Associa currículo à vaga]
+        B6 --> B7[Upload concluído — aceita múltiplos PDFs]
+    end
+
+    subgraph REQ3["Req 3 — Extração de Texto"]
+        C1([PDF armazenado]) --> C2[Extrator_PDF processa documento]
+        C2 --> C3{PDF válido e legível?\nMáx 10 páginas}
+        C3 -- Não --> C4[Retorna erro específico\nReq 10 — log de erro]
+        C3 -- Sim --> C5[Converte em Texto Estruturado\npreserva seções e parágrafos]
+    end
+
+    subgraph REQ4["Req 4 — Anonimização LGPD"]
+        D1([Texto extraído]) --> D2[Anônimizador — Microsoft Presidio]
+        D2 --> D3[Substitui dados sensíveis:\nNome → NOME\nCPF → CPF\nEndereço → ENDEREÇO\nTelefone → TELEFONE\nEmail → EMAIL]
+        D3 --> D4{Anonimização OK?}
+        D4 -- Falha --> D5[Registra erro em log\ncontinua sem anonimização\nReq 10]
+        D4 -- Sim --> D6[Texto anonimizado pronto\ninfo profissional preservada]
+        D5 --> D6
+    end
+
+    subgraph REQ6["Req 6 — Otimização de Tokens"]
+        E1([Texto anonimizado]) --> E2[Remove texto redundante\ne irrelevante]
+        E2 --> E3{Texto > 2000 tokens?}
+        E3 -- Sim --> E4[Resume seções menos relevantes]
+        E3 -- Não --> E5[Monta Prompt Otimizado\nformato JSON / lista estruturada]
+        E4 --> E5
+        E5 --> E6[Inclui apenas:\n- requisitos-chave da vaga\n- seções relevantes do currículo]
+    end
+
+    subgraph REQ5["Req 5 — Análise e Ranqueamento LLM"]
+        F1([Prompt otimizado]) --> F2[Analisador_LLM compara\nperfil vs requisitos da vaga]
+        F2 --> F3{LLM disponível?}
+        F3 -- Não --> F4[Exibe erro e permite\nreprocessamento — Req 10]
+        F3 -- Sim --> F5[Atribui Score 0-100]
+        F5 --> F6[Gera justificativa textual]
+        F6 --> F7[Identifica pontos fortes]
+        F7 --> F8[Identifica gaps / lacunas]
+        F8 --> F9[Gera Ranking ordenado\npor Score decrescente]
+    end
+
+    subgraph REQ9["Req 9 — Persistência"]
+        G1[(Persiste resultados:\nScores, justificativas, rankings)]
+        G2[Recuperação após reinicialização]
+        G3[Exclusão de vaga remove\ncurrículos e análises associadas]
+    end
+
+    subgraph REQ7["Req 7 — Visualização de Resultados"]
+        H1([RH acessa ranking da vaga]) --> H2[Exibe lista: Score, arquivo\ndo currículo, resumo da justificativa]
+        H2 --> H3[Expandir para ver justificativa\ncompleta, pontos fortes e gaps]
+        H2 --> H4[Ordenar por Score ou nome]
+        H2 --> H5[Filtrar por Score mínimo]
+    end
+
+    subgraph REQ8["Req 8 — Interface Web"]
+        I1[Navegador Web — responsivo desktop]
+        I2[Páginas: Cadastro de Vagas\nUpload de Currículos\nVisualização de Rankings]
+        I3[Feedback visual: loading,\nprogresso, mensagens de erro]
+    end
+
+    %% Conexões entre os fluxos
+    A6 --> B1
+    B7 --> C1
+    C5 --> D1
+    D6 --> E1
+    E6 --> F1
+    F9 --> G1
+    G1 --> H1
+
+    %% Interface Web engloba tudo
+    I1 --> A1
+    I1 --> B1
+    I1 --> H1
+    I2 -.- I3
+```
+
+---
+
 ## 📝 Licença
 
 Projeto acadêmico — uso educacional.
