@@ -59,15 +59,6 @@
 
 {% block scripts %}
 <script>
-    // Validação client-side + spinner no submit
-    document.querySelector('form').addEventListener('submit', function (e) {
-        if (!this.checkValidity()) {
-            e.preventDefault();
-            this.classList.add('was-validated');
-            return;
-        }
-        document.getElementById('spinner').classList.remove('d-none');
-        document.getElementById('btn-salvar').disabled = true;
-    });
+    activateFormLoading(document.querySelector('form'), 'spinner', 'btn-salvar');
 </script>
 {% endblock %}
