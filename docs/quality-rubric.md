@@ -13,7 +13,7 @@
 | Qualidade de Código | 30 | 30% |
 | Clareza de Documentação | 20 | 20% |
 | Segurança | 20 | 20% |
-| Interface do Usuário | 30 | 30% |
+| Organização do Repositório GitHub | 30 | 30% |
 | **TOTAL** | **100** | **100%** |
 
 ---
@@ -189,68 +189,80 @@
 
 ---
 
-## 4. Interface do Usuário (30 pontos)
+## 4. Organização do Repositório GitHub (30 pontos)
 
-### 4.1 Usabilidade (12 pontos)
-
-**Critérios:**
-- [ ] **Navegação intuitiva** (4 pontos)
-  - Menu claro e consistente
-  - Breadcrumbs quando aplicável
-  - Fluxo lógico entre páginas
-
-- [ ] **Feedback ao usuário** (4 pontos)
-  - Mensagens de sucesso/erro claras
-  - Loading states
-  - Confirmações para ações destrutivas
-
-- [ ] **Formulários** (4 pontos)
-  - Labels claros
-  - Validação em tempo real
-  - Mensagens de erro específicas
-  - Campos obrigatórios indicados
-
-### 4.2 Design e Apresentação (10 pontos)
+### 4.1 Estrutura e Organização (10 pontos)
 
 **Critérios:**
-- [ ] **Design consistente** (3 pontos)
-  - Paleta de cores coerente
-  - Tipografia consistente
-  - Espaçamento uniforme
+- [ ] **Estrutura de pastas** (3 pontos)
+  - Organização lógica e clara
+  - Separação adequada (app/, backend/, docs/, tests/)
+  - Arquivos de configuração no lugar correto
 
-- [ ] **Responsividade** (3 pontos)
-  - Layout adaptável (mobile, tablet, desktop)
-  - Imagens responsivas
-  - Menu mobile funcional
+- [ ] **Nomenclatura** (2 pontos)
+  - Nomes de arquivos descritivos
+  - Padrão consistente (snake_case, kebab-case)
+  - Sem caracteres especiais problemáticos
 
-- [ ] **Acessibilidade** (4 pontos)
-  - Contraste adequado (WCAG AA)
-  - Textos alternativos em imagens
-  - Navegação por teclado
-  - Semântica HTML correta
+- [ ] **Arquivos essenciais** (3 pontos)
+  - README.md completo
+  - .gitignore apropriado
+  - requirements.txt atualizado
+  - .env.example presente
 
-### 4.3 Funcionalidades (8 pontos)
+- [ ] **Organização de branches** (2 pontos)
+  - Gitflow implementado (main, develop, feature/*)
+  - Branches com nomes descritivos
+  - Branches antigas removidas
+
+### 4.2 Issues e Project Management (10 pontos)
 
 **Critérios:**
-- [ ] **CRUD de Vagas** (2 pontos)
-  - Criar, listar, editar, deletar vagas
-  - Validação de campos
-  - Paginação
+- [ ] **Issues bem estruturadas** (4 pontos)
+  - Títulos claros e descritivos
+  - Descrição detalhada com contexto
+  - Labels apropriadas (bug, feature, docs, etc.)
+  - Assignees definidos
 
-- [ ] **Upload de Currículos** (2 pontos)
-  - Upload múltiplo
-  - Feedback de progresso
-  - Tratamento de erros
+- [ ] **GitHub Projects** (3 pontos)
+  - Board configurado (To Do, In Progress, Done)
+  - Issues vinculadas ao projeto
+  - Progresso visível e atualizado
 
-- [ ] **Visualização de Ranking** (2 pontos)
-  - Lista ordenada por score
-  - Detalhes de cada candidato
-  - Justificativas e gaps visíveis
+- [ ] **Milestones** (2 pontos)
+  - Milestones criadas para entregas
+  - Issues associadas a milestones
+  - Datas de entrega definidas
 
-- [ ] **Experiência geral** (2 pontos)
-  - Tempo de resposta aceitável
-  - Sem erros visuais
-  - Funcionalidades completas
+- [ ] **Templates** (1 ponto)
+  - Issue template configurado
+  - Pull request template configurado
+
+### 4.3 Pull Requests e Code Review (10 pontos)
+
+**Critérios:**
+- [ ] **Qualidade dos PRs** (4 pontos)
+  - Títulos seguindo conventional commits
+  - Descrição detalhada com contexto
+  - Checklist de validação
+  - Screenshots/exemplos quando aplicável
+
+- [ ] **Code Review** (3 pontos)
+  - PRs revisados antes do merge
+  - Comentários construtivos
+  - Aprovações registradas
+  - Discussões técnicas documentadas
+
+- [ ] **Histórico de commits** (2 pontos)
+  - Commits semânticos (conventional commits)
+  - Mensagens descritivas
+  - Commits atômicos (uma mudança por commit)
+  - Sem commits de "fix" ou "wip" no main/develop
+
+- [ ] **Integração contínua** (1 ponto)
+  - GitHub Actions configurado (se aplicável)
+  - Testes automatizados em PRs
+  - Status checks configurados
 
 ---
 
@@ -285,25 +297,25 @@
 - Código funcional sem erros críticos
 - Documentação básica (README)
 - Segurança básica (validação de inputs)
-- Interface funcional
+- Repositório organizado com estrutura básica
 
 ### Bom (70-79 pontos)
 - Código bem estruturado
 - Documentação completa
 - Segurança implementada (LGPD básica)
-- Interface responsiva
+- Repositório com issues e PRs organizados
 
 ### Ótimo (80-89 pontos)
 - Código com padrões consistentes
 - Documentação detalhada com exemplos
 - Segurança robusta (LGPD completa)
-- Interface polida e acessível
+- Repositório profissional com project board
 
 ### Excelente (90-100 pontos)
 - Código exemplar (SOLID, testes, type hints)
 - Documentação profissional
 - Segurança de nível produção
-- Interface excepcional (UX/UI)
+- Repositório exemplar com CI/CD e gestão completa
 
 ---
 
