@@ -1,6 +1,4 @@
-
 import math
-from typing import Optional, Tuple, List
 
 from sqlalchemy.orm import Session
 
@@ -29,7 +27,7 @@ class VagaService:
 
     def listar_paginado(
         self, pagina: int = 1, por_pagina: int = 10
-    ) -> Tuple[List[Vaga], int, int]:
+    ) -> tuple[list[Vaga], int, int]:
         todas = self.repo.listar()
         total = len(todas)
         total_paginas = max(1, math.ceil(total / por_pagina))

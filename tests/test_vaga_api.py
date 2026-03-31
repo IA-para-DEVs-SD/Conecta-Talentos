@@ -1,7 +1,3 @@
-
-import pytest
-
-
 VAGA_VALIDA = {
     "titulo": "Dev Python Sênior",
     "descricao": "Desenvolvimento de APIs REST com FastAPI e SQLAlchemy",
@@ -121,23 +117,30 @@ class TestPaginasHTML:
         assert "Nova Vaga" in resp.text
 
     def test_criar_vaga_via_form(self, client):
-        resp = client.post("/vagas/criar", data={
-            "titulo": "Dev Python Sênior",
-            "descricao": "Desenvolvimento de APIs REST com FastAPI e SQLAlchemy",
-            "requisitos_tecnicos": "Python, FastAPI",
-            "experiencia_minima": "3 anos",
-            "competencias_desejadas": "Trabalho em equipe, Comunicação",
-        }, follow_redirects=False)
+        resp = client.post(
+            "/vagas/criar",
+            data={
+                "titulo": "Dev Python Sênior",
+                "descricao": "Desenvolvimento de APIs REST com FastAPI e SQLAlchemy",
+                "requisitos_tecnicos": "Python, FastAPI",
+                "experiencia_minima": "3 anos",
+                "competencias_desejadas": "Trabalho em equipe, Comunicação",
+            },
+            follow_redirects=False,
+        )
         assert resp.status_code == 303
 
     def test_criar_vaga_form_invalido(self, client):
-        resp = client.post("/vagas/criar", data={
-            "titulo": "",
-            "descricao": "",
-            "requisitos_tecnicos": "",
-            "experiencia_minima": "",
-            "competencias_desejadas": "",
-        })
+        resp = client.post(
+            "/vagas/criar",
+            data={
+                "titulo": "",
+                "descricao": "",
+                "requisitos_tecnicos": "",
+                "experiencia_minima": "",
+                "competencias_desejadas": "",
+            },
+        )
         assert resp.status_code == 200
         assert "alert-danger" in resp.text
 

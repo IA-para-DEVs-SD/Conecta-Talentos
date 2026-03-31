@@ -1,5 +1,6 @@
 """Testes de conexão e configuração do banco de dados."""
-from sqlalchemy import text, inspect
+from sqlalchemy import inspect, text
+
 from app.database import engine, init_db
 from app.models.orm import Base
 

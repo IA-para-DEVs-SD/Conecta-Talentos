@@ -1,31 +1,40 @@
 """Testes de integração para exclusão em cascata: vaga → currículos → análises → PDFs."""
 import os
 import tempfile
-import pytest
-from app.repositories.vaga_repository import VagaRepository
-from app.repositories.curriculo_repository import CurriculoRepository
+
+from app.models.domain import Analise, VagaCreate
 from app.repositories.analise_repository import AnaliseRepository
-from app.models.domain import VagaCreate, Analise
-from app.models.orm import CurriculoORM, AnaliseORM
+from app.repositories.curriculo_repository import CurriculoRepository
+from app.repositories.vaga_repository import VagaRepository
 
 
 def test_cascade_delete_vaga_remove_curriculos_e_analises(db):
     """Deletar vaga deve remover currículos e análises em cascata."""
-    vaga = VagaRepository(db).criar(VagaCreate(
-        titulo="Dev", descricao="Desc",
-        requisitos_tecnicos=["Python"], experiencia_minima="1 ano",
-        competencias_desejadas=["Comunicação"],
-    ))
+    vaga = VagaRepository(db).criar(
+        VagaCreate(
+            titulo="Dev",
+            descricao="Desc",
+            requisitos_tecnicos=["Python"],
+            experiencia_minima="1 ano",
+            competencias_desejadas=["Comunicação"],
+        )
+    )
 
     curriculo_repo = CurriculoRepository(db)
     curriculo = curriculo_repo.criar(vaga.id, "cv.pdf", "/tmp/cv.pdf")
 
     analise_repo = AnaliseRepository(db)
-    analise_repo.criar(Analise(
-        id=None, curriculo_id=curriculo.id, score=80,
-        justificativa="Bom candidato", pontos_fortes=["Python"],
-        gaps=["Docker"], tokens_usados=100,
-    ))
+    analise_repo.criar(
+        Analise(
+            id=None,
+            curriculo_id=curriculo.id,
+            score=80,
+            justificativa="Bom candidato",
+            pontos_fortes=["Python"],
+            gaps=["Docker"],
+            tokens_usados=100,
+        )
+    )
 
     # Confirma que existem antes de deletar
     assert len(curriculo_repo.listar_por_vaga(vaga.id)) == 1
@@ -41,11 +50,15 @@ def test_cascade_delete_vaga_remove_curriculos_e_analises(db):
 
 def test_cascade_delete_curriculo_remove_pdf_do_disco(db):
     """Deletar currículo deve remover o arquivo PDF do disco."""
-    vaga = VagaRepository(db).criar(VagaCreate(
-        titulo="Dev", descricao="Desc",
-        requisitos_tecnicos=["Python"], experiencia_minima="1 ano",
-        competencias_desejadas=["Comunicação"],
-    ))
+    vaga = VagaRepository(db).criar(
+        VagaCreate(
+            titulo="Dev",
+            descricao="Desc",
+            requisitos_tecnicos=["Python"],
+            experiencia_minima="1 ano",
+            competencias_desejadas=["Comunicação"],
+        )
+    )
 
     # Cria arquivo temporário simulando PDF
     with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
@@ -63,11 +76,15 @@ def test_cascade_delete_curriculo_remove_pdf_do_disco(db):
 
 def test_cascade_delete_vaga_remove_pdfs_do_disco(db):
     """Deletar vaga deve remover todos os PDFs dos currículos do disco."""
-    vaga = VagaRepository(db).criar(VagaCreate(
-        titulo="Dev", descricao="Desc",
-        requisitos_tecnicos=["Python"], experiencia_minima="1 ano",
-        competencias_desejadas=["Comunicação"],
-    ))
+    vaga = VagaRepository(db).criar(
+        VagaCreate(
+            titulo="Dev",
+            descricao="Desc",
+            requisitos_tecnicos=["Python"],
+            experiencia_minima="1 ano",
+            competencias_desejadas=["Comunicação"],
+        )
+    )
 
     curriculo_repo = CurriculoRepository(db)
 

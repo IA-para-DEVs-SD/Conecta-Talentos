@@ -1,6 +1,6 @@
 from urllib.parse import quote
 
-from fastapi import APIRouter, Request, Depends, Form, Query
+from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
@@ -8,9 +8,12 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.vaga_schema import (
-    VagaCreateSchema, VagaResponseSchema, VagaListResponseSchema, _CAMPO_LABELS,
+    _CAMPO_LABELS,
+    VagaCreateSchema,
+    VagaListResponseSchema,
+    VagaResponseSchema,
 )
-from app.services.vaga_service import VagaService, VagaNotFoundError
+from app.services.vaga_service import VagaNotFoundError, VagaService
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -24,13 +27,18 @@ def api_criar_vaga(dados: VagaCreateSchema, db: Session = Depends(get_db)):
 
 
 @router.put("/api/{vaga_id}", response_model=VagaResponseSchema)
-def api_atualizar_vaga(vaga_id: int, dados: VagaCreateSchema, db: Session = Depends(get_db)):
+def api_atualizar_vaga(
+    vaga_id: int, dados: VagaCreateSchema, db: Session = Depends(get_db)
+):
     service = VagaService(db)
     try:
         vaga = service.atualizar(vaga_id, dados)
-    except VagaNotFoundError:
+    except VagaNotFoundError as e:
         from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail=f"Vaga #{vaga_id} não encontrada.")
+
+        raise HTTPException(
+            status_code=404, detail=f"Vaga #{vaga_id} não encontrada."
+        ) from e
     return _vaga_to_response(vaga)
 
 
@@ -56,9 +64,12 @@ def api_obter_vaga(vaga_id: int, db: Session = Depends(get_db)):
     service = VagaService(db)
     try:
         vaga = service.obter(vaga_id)
-    except VagaNotFoundError:
+    except VagaNotFoundError as e:
         from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail=f"Vaga #{vaga_id} não encontrada.")
+
+        raise HTTPException(
+            status_code=404, detail=f"Vaga #{vaga_id} não encontrada."
+        ) from e
     return _vaga_to_response(vaga)
 
 
@@ -67,9 +78,12 @@ def api_deletar_vaga(vaga_id: int, db: Session = Depends(get_db)):
     service = VagaService(db)
     try:
         service.deletar(vaga_id)
-    except VagaNotFoundError:
+    except VagaNotFoundError as e:
         from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail=f"Vaga #{vaga_id} não encontrada.")
+
+        raise HTTPException(
+            status_code=404, detail=f"Vaga #{vaga_id} não encontrada."
+        ) from e
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -80,12 +94,16 @@ def listar_vagas(
 ):
     service = VagaService(db)
     vagas, total, total_paginas = service.listar_paginado(pagina, por_pagina=10)
-    return templates.TemplateResponse(request, "vagas/lista.html", {
-        "vagas": vagas,
-        "pagina": pagina,
-        "total_paginas": total_paginas,
-        "total": total,
-    })
+    return templates.TemplateResponse(
+        request,
+        "vagas/lista.html",
+        {
+            "vagas": vagas,
+            "pagina": pagina,
+            "total_paginas": total_paginas,
+            "total": total,
+        },
+    )
 
 
 @router.get("/criar", response_class=HTMLResponse)
@@ -107,22 +125,32 @@ def criar_vaga(
         schema = VagaCreateSchema(
             titulo=titulo,
             descricao=descricao,
-            requisitos_tecnicos=[r.strip() for r in requisitos_tecnicos.split(",") if r.strip()],
-            experiencia_minima=f"{experiencia_minima.strip()} ano(s)" if experiencia_minima.strip() else "",
-            competencias_desejadas=[c.strip() for c in competencias_desejadas.split(",") if c.strip()],
+            requisitos_tecnicos=[
+                r.strip() for r in requisitos_tecnicos.split(",") if r.strip()
+            ],
+            experiencia_minima=f"{experiencia_minima.strip()} ano(s)"
+            if experiencia_minima.strip()
+            else "",
+            competencias_desejadas=[
+                c.strip() for c in competencias_desejadas.split(",") if c.strip()
+            ],
         )
     except ValidationError as e:
         erros = _formatar_erros_pt(e)
-        return templates.TemplateResponse(request, "vagas/criar.html", {
-            "erro": erros,
-            "form": {
-                "titulo": titulo,
-                "descricao": descricao,
-                "requisitos_tecnicos": requisitos_tecnicos,
-                "experiencia_minima": experiencia_minima,
-                "competencias_desejadas": competencias_desejadas,
+        return templates.TemplateResponse(
+            request,
+            "vagas/criar.html",
+            {
+                "erro": erros,
+                "form": {
+                    "titulo": titulo,
+                    "descricao": descricao,
+                    "requisitos_tecnicos": requisitos_tecnicos,
+                    "experiencia_minima": experiencia_minima,
+                    "competencias_desejadas": competencias_desejadas,
+                },
             },
-        })
+        )
 
     service = VagaService(db)
     vaga = service.criar(schema)
@@ -138,7 +166,9 @@ def detalhes_vaga(request: Request, vaga_id: int, db: Session = Depends(get_db))
     try:
         vaga = service.obter(vaga_id)
     except VagaNotFoundError:
-        return templates.TemplateResponse(request, "vagas/detalhes.html", {"vaga": None}, status_code=404)
+        return templates.TemplateResponse(
+            request, "vagas/detalhes.html", {"vaga": None}, status_code=404
+        )
     return templates.TemplateResponse(request, "vagas/detalhes.html", {"vaga": vaga})
 
 
@@ -148,11 +178,17 @@ def form_editar_vaga(request: Request, vaga_id: int, db: Session = Depends(get_d
     try:
         vaga = service.obter(vaga_id)
     except VagaNotFoundError:
-        return templates.TemplateResponse(request, "vagas/detalhes.html", {"vaga": None}, status_code=404)
-    return templates.TemplateResponse(request, "vagas/editar.html", {
-        "vaga": vaga,
-        "erro": None,
-    })
+        return templates.TemplateResponse(
+            request, "vagas/detalhes.html", {"vaga": None}, status_code=404
+        )
+    return templates.TemplateResponse(
+        request,
+        "vagas/editar.html",
+        {
+            "vaga": vaga,
+            "erro": None,
+        },
+    )
 
 
 @router.post("/{vaga_id}/editar", response_class=HTMLResponse)
@@ -170,9 +206,15 @@ def editar_vaga(
         schema = VagaCreateSchema(
             titulo=titulo,
             descricao=descricao,
-            requisitos_tecnicos=[r.strip() for r in requisitos_tecnicos.split(",") if r.strip()],
-            experiencia_minima=f"{experiencia_minima.strip()} ano(s)" if experiencia_minima.strip() else "",
-            competencias_desejadas=[c.strip() for c in competencias_desejadas.split(",") if c.strip()],
+            requisitos_tecnicos=[
+                r.strip() for r in requisitos_tecnicos.split(",") if r.strip()
+            ],
+            experiencia_minima=f"{experiencia_minima.strip()} ano(s)"
+            if experiencia_minima.strip()
+            else "",
+            competencias_desejadas=[
+                c.strip() for c in competencias_desejadas.split(",") if c.strip()
+            ],
         )
     except ValidationError as e:
         erros = _formatar_erros_pt(e)
@@ -181,23 +223,29 @@ def editar_vaga(
             vaga = service.obter(vaga_id)
         except VagaNotFoundError:
             vaga = None
-        return templates.TemplateResponse(request, "vagas/editar.html", {
-            "vaga": vaga,
-            "erro": erros,
-            "form": {
-                "titulo": titulo,
-                "descricao": descricao,
-                "requisitos_tecnicos": requisitos_tecnicos,
-                "experiencia_minima": experiencia_minima,
-                "competencias_desejadas": competencias_desejadas,
+        return templates.TemplateResponse(
+            request,
+            "vagas/editar.html",
+            {
+                "vaga": vaga,
+                "erro": erros,
+                "form": {
+                    "titulo": titulo,
+                    "descricao": descricao,
+                    "requisitos_tecnicos": requisitos_tecnicos,
+                    "experiencia_minima": experiencia_minima,
+                    "competencias_desejadas": competencias_desejadas,
+                },
             },
-        })
+        )
 
     service = VagaService(db)
     try:
         service.atualizar(vaga_id, schema)
     except VagaNotFoundError:
-        return templates.TemplateResponse(request, "vagas/detalhes.html", {"vaga": None}, status_code=404)
+        return templates.TemplateResponse(
+            request, "vagas/detalhes.html", {"vaga": None}, status_code=404
+        )
     return RedirectResponse(
         url=f"/vagas/{vaga_id}?msg={quote('Vaga atualizada com sucesso!')}&msg_level=success",
         status_code=303,
@@ -248,7 +296,9 @@ def _formatar_erros_pt(e: ValidationError) -> str:
         else:
             mensagens.append(f"{label}: campo inválido")
 
-    return "; ".join(mensagens) if mensagens else "Verifique os campos e tente novamente."
+    return (
+        "; ".join(mensagens) if mensagens else "Verifique os campos e tente novamente."
+    )
 
 
 def _vaga_to_response(vaga) -> VagaResponseSchema:

@@ -1,13 +1,13 @@
-
 import pytest
+
+from app.schemas.vaga_schema import VagaCreateSchema
 from app.services.curriculo_service import (
-    validar_pdf,
     ArquivoInvalidoError,
     ArquivoMuitoGrandeError,
     CurriculoService,
     VagaNaoEncontradaError,
+    validar_pdf,
 )
-from app.schemas.vaga_schema import VagaCreateSchema
 from app.services.vaga_service import VagaService
 
 PDF_VALIDO = b"%PDF-1.4 fake content for testing purposes"
@@ -45,13 +45,15 @@ class TestValidarPdf:
 
 def _criar_vaga(db_session) -> int:
     service = VagaService(db_session)
-    vaga = service.criar(VagaCreateSchema(
-        titulo="Dev Python",
-        descricao="Desenvolvimento de APIs REST com FastAPI",
-        requisitos_tecnicos=["Python"],
-        experiencia_minima="3 anos",
-        competencias_desejadas=["Comunicação"],
-    ))
+    vaga = service.criar(
+        VagaCreateSchema(
+            titulo="Dev Python",
+            descricao="Desenvolvimento de APIs REST com FastAPI",
+            requisitos_tecnicos=["Python"],
+            experiencia_minima="3 anos",
+            competencias_desejadas=["Comunicação"],
+        )
+    )
     return vaga.id
 
 
@@ -64,7 +66,9 @@ class TestCurriculoServiceUpload:
     def test_upload_sucesso(self, db_session, tmp_path, monkeypatch):
         monkeypatch.setattr(
             "app.services.curriculo_service.get_settings",
-            lambda: type("S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10})(),
+            lambda: type(
+                "S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10}
+            )(),
         )
         vaga_id = _criar_vaga(db_session)
         service = CurriculoService(db_session)
@@ -77,7 +81,9 @@ class TestCurriculoServiceUpload:
     def test_upload_arquivo_invalido(self, db_session, tmp_path, monkeypatch):
         monkeypatch.setattr(
             "app.services.curriculo_service.get_settings",
-            lambda: type("S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10})(),
+            lambda: type(
+                "S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10}
+            )(),
         )
         vaga_id = _criar_vaga(db_session)
         service = CurriculoService(db_session)
@@ -89,7 +95,9 @@ class TestCurriculoServiceMultiplos:
     def test_upload_multiplos_sucesso(self, db_session, tmp_path, monkeypatch):
         monkeypatch.setattr(
             "app.services.curriculo_service.get_settings",
-            lambda: type("S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10})(),
+            lambda: type(
+                "S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10}
+            )(),
         )
         vaga_id = _criar_vaga(db_session)
         service = CurriculoService(db_session)
@@ -104,7 +112,9 @@ class TestCurriculoServiceMultiplos:
     def test_upload_multiplos_com_erros(self, db_session, tmp_path, monkeypatch):
         monkeypatch.setattr(
             "app.services.curriculo_service.get_settings",
-            lambda: type("S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10})(),
+            lambda: type(
+                "S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10}
+            )(),
         )
         vaga_id = _criar_vaga(db_session)
         service = CurriculoService(db_session)
@@ -127,7 +137,9 @@ class TestCurriculoServiceListar:
     def test_listar_com_curriculos(self, db_session, tmp_path, monkeypatch):
         monkeypatch.setattr(
             "app.services.curriculo_service.get_settings",
-            lambda: type("S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10})(),
+            lambda: type(
+                "S", (), {"upload_dir": str(tmp_path), "max_file_size_mb": 10}
+            )(),
         )
         vaga_id = _criar_vaga(db_session)
         service = CurriculoService(db_session)
