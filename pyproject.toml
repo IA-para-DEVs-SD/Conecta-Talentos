@@ -35,6 +35,7 @@ select = [
 # Regras ignoradas
 ignore = [
     "E501",  # Linha muito longa (deixar Black gerenciar)
+    "B008",  # Function call in argument defaults (padrão FastAPI com Depends)
 ]
 
 # Permitir auto-fix para regras específicas

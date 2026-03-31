@@ -1,8 +1,9 @@
 import os
-from typing import List, Optional
+
 from sqlalchemy.orm import Session
-from app.models.orm import CurriculoORM
+
 from app.models.domain import Curriculo
+from app.models.orm import CurriculoORM
 
 
 def _orm_to_domain(orm: CurriculoORM) -> Curriculo:
@@ -33,18 +34,24 @@ class CurriculoRepository:
         self.db.refresh(orm)
         return _orm_to_domain(orm)
 
-    def listar_por_vaga(self, vaga_id: int) -> List[Curriculo]:
+    def listar_por_vaga(self, vaga_id: int) -> list[Curriculo]:
         return [
             _orm_to_domain(c)
-            for c in self.db.query(CurriculoORM).filter(CurriculoORM.vaga_id == vaga_id).all()
+            for c in self.db.query(CurriculoORM)
+            .filter(CurriculoORM.vaga_id == vaga_id)
+            .all()
         ]
 
-    def obter(self, curriculo_id: int) -> Optional[Curriculo]:
-        orm = self.db.query(CurriculoORM).filter(CurriculoORM.id == curriculo_id).first()
+    def obter(self, curriculo_id: int) -> Curriculo | None:
+        orm = (
+            self.db.query(CurriculoORM).filter(CurriculoORM.id == curriculo_id).first()
+        )
         return _orm_to_domain(orm) if orm else None
 
-    def atualizar(self, curriculo: Curriculo) -> Optional[Curriculo]:
-        orm = self.db.query(CurriculoORM).filter(CurriculoORM.id == curriculo.id).first()
+    def atualizar(self, curriculo: Curriculo) -> Curriculo | None:
+        orm = (
+            self.db.query(CurriculoORM).filter(CurriculoORM.id == curriculo.id).first()
+        )
         if not orm:
             return None
         orm.texto_extraido = curriculo.texto_extraido
@@ -55,7 +62,9 @@ class CurriculoRepository:
         return _orm_to_domain(orm)
 
     def deletar(self, curriculo_id: int) -> bool:
-        orm = self.db.query(CurriculoORM).filter(CurriculoORM.id == curriculo_id).first()
+        orm = (
+            self.db.query(CurriculoORM).filter(CurriculoORM.id == curriculo_id).first()
+        )
         if not orm:
             return False
         if orm.caminho_pdf and os.path.exists(orm.caminho_pdf):

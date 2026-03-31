@@ -1,19 +1,17 @@
 from urllib.parse import quote
-from typing import List
 
-from fastapi import APIRouter, Request, Depends, UploadFile, File, Query
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi import APIRouter, Depends, File, Request, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.services.curriculo_service import (
-    CurriculoService,
-    CurriculoError,
-    VagaNaoEncontradaError,
     CurriculoNaoEncontradoError,
+    CurriculoService,
+    VagaNaoEncontradaError,
 )
-from app.services.vaga_service import VagaService, VagaNotFoundError
+from app.services.vaga_service import VagaNotFoundError, VagaService
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -22,10 +20,9 @@ templates = Jinja2Templates(directory="app/templates")
 @router.post("/api/{vaga_id}", status_code=201)
 async def api_upload_curriculos(
     vaga_id: int,
-    arquivos: List[UploadFile] = File(...),
+    arquivos: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
 ):
-
     from fastapi import HTTPException
 
     service = CurriculoService(db)
@@ -37,8 +34,10 @@ async def api_upload_curriculos(
 
     try:
         sucessos, erros = service.upload_multiplos(vaga_id, itens)
-    except VagaNaoEncontradaError:
-        raise HTTPException(status_code=404, detail=f"Vaga #{vaga_id} não encontrada.")
+    except VagaNaoEncontradaError as e:
+        raise HTTPException(
+            status_code=404, detail=f"Vaga #{vaga_id} não encontrada."
+        ) from e
 
     return JSONResponse(
         status_code=201 if sucessos else 400,
@@ -79,11 +78,14 @@ def api_listar_curriculos(vaga_id: int, db: Session = Depends(get_db)):
 @router.delete("/api/{curriculo_id}", status_code=204)
 def api_deletar_curriculo(curriculo_id: int, db: Session = Depends(get_db)):
     from fastapi import HTTPException
+
     service = CurriculoService(db)
     try:
         service.deletar(curriculo_id)
-    except CurriculoNaoEncontradoError:
-        raise HTTPException(status_code=404, detail=f"Currículo #{curriculo_id} não encontrado.")
+    except CurriculoNaoEncontradoError as e:
+        raise HTTPException(
+            status_code=404, detail=f"Currículo #{curriculo_id} não encontrado."
+        ) from e
 
 
 @router.get("/upload/{vaga_id}", response_class=HTMLResponse)
@@ -98,19 +100,23 @@ def form_upload(request: Request, vaga_id: int, db: Session = Depends(get_db)):
         )
     curriculo_service = CurriculoService(db)
     curriculos = curriculo_service.listar_por_vaga(vaga_id)
-    return templates.TemplateResponse(request, "curriculos/upload.html", {
-        "vaga": vaga,
-        "vaga_id": vaga_id,
-        "curriculos": curriculos,
-        "erro": None,
-    })
+    return templates.TemplateResponse(
+        request,
+        "curriculos/upload.html",
+        {
+            "vaga": vaga,
+            "vaga_id": vaga_id,
+            "curriculos": curriculos,
+            "erro": None,
+        },
+    )
 
 
 @router.post("/upload/{vaga_id}", response_class=HTMLResponse)
 async def upload_curriculos(
     request: Request,
     vaga_id: int,
-    arquivos: List[UploadFile] = File(...),
+    arquivos: list[UploadFile] = File(...),
     db: Session = Depends(get_db),
 ):
     service = CurriculoService(db)

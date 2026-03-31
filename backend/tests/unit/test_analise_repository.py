@@ -1,19 +1,20 @@
 """Testes unitários para AnaliseRepository."""
-import pytest
-from app.repositories.vaga_repository import VagaRepository
-from app.repositories.curriculo_repository import CurriculoRepository
+from app.models.domain import Analise, VagaCreate
 from app.repositories.analise_repository import AnaliseRepository
-from app.models.domain import VagaCreate, Analise
+from app.repositories.curriculo_repository import CurriculoRepository
+from app.repositories.vaga_repository import VagaRepository
 
 
 def setup_curriculo(db):
-    vaga = VagaRepository(db).criar(VagaCreate(
-        titulo="Dev Python",
-        descricao="Descrição",
-        requisitos_tecnicos=["Python"],
-        experiencia_minima="1 ano",
-        competencias_desejadas=["Comunicação"],
-    ))
+    vaga = VagaRepository(db).criar(
+        VagaCreate(
+            titulo="Dev Python",
+            descricao="Descrição",
+            requisitos_tecnicos=["Python"],
+            experiencia_minima="1 ano",
+            competencias_desejadas=["Comunicação"],
+        )
+    )
     return CurriculoRepository(db).criar(vaga.id, "cv.pdf", "/uploads/cv.pdf")
 
 
@@ -54,20 +55,31 @@ def test_obter_por_curriculo_inexistente(db):
 
 
 def test_listar_por_vaga_ordenado_por_score(db):
-    vaga = VagaRepository(db).criar(VagaCreate(
-        titulo="Dev", descricao="Desc",
-        requisitos_tecnicos=["Python"], experiencia_minima="1 ano",
-        competencias_desejadas=["Comunicação"],
-    ))
+    vaga = VagaRepository(db).criar(
+        VagaCreate(
+            titulo="Dev",
+            descricao="Desc",
+            requisitos_tecnicos=["Python"],
+            experiencia_minima="1 ano",
+            competencias_desejadas=["Comunicação"],
+        )
+    )
     curriculo_repo = CurriculoRepository(db)
     analise_repo = AnaliseRepository(db)
 
     for score, nome in [(60, "cv1.pdf"), (90, "cv2.pdf"), (75, "cv3.pdf")]:
         c = curriculo_repo.criar(vaga.id, nome, f"/uploads/{nome}")
-        analise_repo.criar(Analise(
-            id=None, curriculo_id=c.id, score=score,
-            justificativa="Avaliação", pontos_fortes=[], gaps=[], tokens_usados=100,
-        ))
+        analise_repo.criar(
+            Analise(
+                id=None,
+                curriculo_id=c.id,
+                score=score,
+                justificativa="Avaliação",
+                pontos_fortes=[],
+                gaps=[],
+                tokens_usados=100,
+            )
+        )
 
     ranking = analise_repo.listar_por_vaga(vaga.id)
     assert len(ranking) == 3
