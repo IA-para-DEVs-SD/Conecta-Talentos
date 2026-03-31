@@ -1,8 +1,6 @@
-
-from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
 
+from pydantic import BaseModel, Field, field_validator
 
 _CAMPO_LABELS = {
     "titulo": "Título",
@@ -14,16 +12,15 @@ _CAMPO_LABELS = {
 
 
 class VagaCreateSchema(BaseModel):
-
     titulo: str = Field(..., min_length=3, max_length=200)
     descricao: str = Field(..., min_length=10)
-    requisitos_tecnicos: List[str] = Field(..., min_length=1)
+    requisitos_tecnicos: list[str] = Field(..., min_length=1)
     experiencia_minima: str = Field(..., min_length=1, max_length=100)
-    competencias_desejadas: List[str] = Field(..., min_length=1)
+    competencias_desejadas: list[str] = Field(..., min_length=1)
 
     @field_validator("requisitos_tecnicos")
     @classmethod
-    def requisitos_nao_vazios(cls, v: List[str]) -> List[str]:
+    def requisitos_nao_vazios(cls, v: list[str]) -> list[str]:
         cleaned = [item.strip() for item in v if item.strip()]
         if not cleaned:
             raise ValueError("Informe pelo menos um requisito técnico.")
@@ -31,7 +28,7 @@ class VagaCreateSchema(BaseModel):
 
     @field_validator("competencias_desejadas")
     @classmethod
-    def competencias_nao_vazias(cls, v: List[str]) -> List[str]:
+    def competencias_nao_vazias(cls, v: list[str]) -> list[str]:
         cleaned = [item.strip() for item in v if item.strip()]
         if not cleaned:
             raise ValueError("Informe pelo menos uma competência.")
@@ -60,20 +57,18 @@ class VagaCreateSchema(BaseModel):
 
 
 class VagaResponseSchema(BaseModel):
-
     id: int
     titulo: str
     descricao: str
-    requisitos_tecnicos: List[str]
+    requisitos_tecnicos: list[str]
     experiencia_minima: str
-    competencias_desejadas: List[str]
-    criado_em: Optional[datetime] = None
-    atualizado_em: Optional[datetime] = None
+    competencias_desejadas: list[str]
+    criado_em: datetime | None = None
+    atualizado_em: datetime | None = None
 
 
 class VagaListResponseSchema(BaseModel):
-
-    vagas: List[VagaResponseSchema]
+    vagas: list[VagaResponseSchema]
     total: int
     pagina: int
     por_pagina: int

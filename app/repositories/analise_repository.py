@@ -1,8 +1,9 @@
 import json
-from typing import List, Optional
+
 from sqlalchemy.orm import Session
-from app.models.orm import AnaliseORM
+
 from app.models.domain import Analise
+from app.models.orm import AnaliseORM
 
 
 def _orm_to_domain(orm: AnaliseORM) -> Analise:
@@ -36,12 +37,17 @@ class AnaliseRepository:
         self.db.refresh(orm)
         return _orm_to_domain(orm)
 
-    def obter_por_curriculo(self, curriculo_id: int) -> Optional[Analise]:
-        orm = self.db.query(AnaliseORM).filter(AnaliseORM.curriculo_id == curriculo_id).first()
+    def obter_por_curriculo(self, curriculo_id: int) -> Analise | None:
+        orm = (
+            self.db.query(AnaliseORM)
+            .filter(AnaliseORM.curriculo_id == curriculo_id)
+            .first()
+        )
         return _orm_to_domain(orm) if orm else None
 
-    def listar_por_vaga(self, vaga_id: int) -> List[Analise]:
+    def listar_por_vaga(self, vaga_id: int) -> list[Analise]:
         from app.models.orm import CurriculoORM
+
         orms = (
             self.db.query(AnaliseORM)
             .join(CurriculoORM, AnaliseORM.curriculo_id == CurriculoORM.id)

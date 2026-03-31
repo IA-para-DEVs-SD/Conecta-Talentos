@@ -161,6 +161,11 @@ agora adicione todos os prompts dessa conversa no Prompt.md e faça o commit
 - Confirmação de ações realizadas
 - Links para recursos criados (PRs, issues, etc.)
 
+### Git e Versionamento
+- **NÃO fazer commit/push automaticamente** após alterações
+- Apenas fazer commit e push quando explicitamente solicitado pelo usuário
+- Aguardar confirmação antes de versionar mudanças
+
 ---
 
 ## Notas para Futuras Interações

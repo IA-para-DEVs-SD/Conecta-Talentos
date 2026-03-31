@@ -1,6 +1,5 @@
-import pytest
-from app.repositories.vaga_repository import VagaRepository
 from app.models.domain import VagaCreate
+from app.repositories.vaga_repository import VagaRepository
 
 
 def make_vaga():

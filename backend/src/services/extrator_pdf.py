@@ -1,8 +1,8 @@
 """Extração de texto de arquivos PDF."""
 
+from dataclasses import dataclass
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Optional
+
 import pymupdf
 
 
@@ -17,8 +17,10 @@ class TextoExtraido:
 class PDFError(Exception):
     pass
 
+
 class PDFCorromidoError(PDFError):
     pass
+
 
 class PDFMuitoGrandeError(PDFError):
     pass
@@ -44,7 +46,7 @@ class ExtratorPDF:
         try:
             doc = pymupdf.open(pdf_path)
         except Exception as e:
-            raise PDFCorromidoError(f"Não foi possível abrir o PDF: {e}")
+            raise PDFCorromidoError(f"Não foi possível abrir o PDF: {e}") from e
 
         with doc:
             if len(doc) > self.max_paginas:
@@ -66,7 +68,7 @@ class ExtratorPDF:
             partes.append(page.get_text())
         return "".join(partes)
 
-    def validar_pdf(self, pdf_path: Path) -> tuple[bool, Optional[str]]:
+    def validar_pdf(self, pdf_path: Path) -> tuple[bool, str | None]:
         """Retorna (válido, mensagem_erro)."""
         try:
             self.extrair_texto(pdf_path)
@@ -94,7 +96,9 @@ if __name__ == "__main__":
 
     try:
         resultado = extrator.extrair_texto(pdf_path)
-        print(f"✓ {resultado.num_paginas} páginas | {resultado.tamanho_bytes} bytes | {len(resultado.conteudo)} chars")
+        print(
+            f"✓ {resultado.num_paginas} páginas | {resultado.tamanho_bytes} bytes | {len(resultado.conteudo)} chars"
+        )
 
         if len(sys.argv) >= 3:
             Path(sys.argv[2]).write_text(resultado.conteudo, encoding="utf-8")

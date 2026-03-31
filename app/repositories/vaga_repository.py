@@ -1,9 +1,10 @@
 import json
 import os
-from typing import List, Optional
+
 from sqlalchemy.orm import Session
-from app.models.orm import VagaORM, CurriculoORM
+
 from app.models.domain import Vaga, VagaCreate
+from app.models.orm import CurriculoORM, VagaORM
 
 
 def _orm_to_domain(orm: VagaORM) -> Vaga:
@@ -27,31 +28,39 @@ class VagaRepository:
         orm = VagaORM(
             titulo=dados.titulo,
             descricao=dados.descricao,
-            requisitos_tecnicos=json.dumps(dados.requisitos_tecnicos, ensure_ascii=False),
+            requisitos_tecnicos=json.dumps(
+                dados.requisitos_tecnicos, ensure_ascii=False
+            ),
             experiencia_minima=dados.experiencia_minima,
-            competencias_desejadas=json.dumps(dados.competencias_desejadas, ensure_ascii=False),
+            competencias_desejadas=json.dumps(
+                dados.competencias_desejadas, ensure_ascii=False
+            ),
         )
         self.db.add(orm)
         self.db.commit()
         self.db.refresh(orm)
         return _orm_to_domain(orm)
 
-    def listar(self) -> List[Vaga]:
+    def listar(self) -> list[Vaga]:
         return [_orm_to_domain(v) for v in self.db.query(VagaORM).all()]
 
-    def obter(self, vaga_id: int) -> Optional[Vaga]:
+    def obter(self, vaga_id: int) -> Vaga | None:
         orm = self.db.query(VagaORM).filter(VagaORM.id == vaga_id).first()
         return _orm_to_domain(orm) if orm else None
 
-    def atualizar(self, vaga_id: int, dados: VagaCreate) -> Optional[Vaga]:
+    def atualizar(self, vaga_id: int, dados: VagaCreate) -> Vaga | None:
         orm = self.db.query(VagaORM).filter(VagaORM.id == vaga_id).first()
         if not orm:
             return None
         orm.titulo = dados.titulo
         orm.descricao = dados.descricao
-        orm.requisitos_tecnicos = json.dumps(dados.requisitos_tecnicos, ensure_ascii=False)
+        orm.requisitos_tecnicos = json.dumps(
+            dados.requisitos_tecnicos, ensure_ascii=False
+        )
         orm.experiencia_minima = dados.experiencia_minima
-        orm.competencias_desejadas = json.dumps(dados.competencias_desejadas, ensure_ascii=False)
+        orm.competencias_desejadas = json.dumps(
+            dados.competencias_desejadas, ensure_ascii=False
+        )
         self.db.commit()
         self.db.refresh(orm)
         return _orm_to_domain(orm)
@@ -60,7 +69,9 @@ class VagaRepository:
         orm = self.db.query(VagaORM).filter(VagaORM.id == vaga_id).first()
         if not orm:
             return False
-        curriculos = self.db.query(CurriculoORM).filter(CurriculoORM.vaga_id == vaga_id).all()
+        curriculos = (
+            self.db.query(CurriculoORM).filter(CurriculoORM.vaga_id == vaga_id).all()
+        )
         for curriculo in curriculos:
             if curriculo.caminho_pdf and os.path.exists(curriculo.caminho_pdf):
                 os.remove(curriculo.caminho_pdf)

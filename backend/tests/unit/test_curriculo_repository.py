@@ -1,17 +1,18 @@
-import pytest
-from app.repositories.vaga_repository import VagaRepository
+from app.models.domain import VagaCreate
 from app.repositories.curriculo_repository import CurriculoRepository
-from app.models.domain import VagaCreate, Curriculo
+from app.repositories.vaga_repository import VagaRepository
 
 
 def criar_vaga(db):
-    return VagaRepository(db).criar(VagaCreate(
-        titulo="Dev Python",
-        descricao="Descrição",
-        requisitos_tecnicos=["Python"],
-        experiencia_minima="1 ano",
-        competencias_desejadas=["Comunicação"],
-    ))
+    return VagaRepository(db).criar(
+        VagaCreate(
+            titulo="Dev Python",
+            descricao="Descrição",
+            requisitos_tecnicos=["Python"],
+            experiencia_minima="1 ano",
+            competencias_desejadas=["Comunicação"],
+        )
+    )
 
 
 def test_criar_curriculo(db):

@@ -1,17 +1,17 @@
-
 import pytest
+
 from app.schemas.vaga_schema import VagaCreateSchema
-from app.services.vaga_service import VagaService, VagaNotFoundError
+from app.services.vaga_service import VagaNotFoundError, VagaService
 
 
 def _dados_vaga(**kwargs):
-    defaults = dict(
-        titulo="Dev Python Sênior",
-        descricao="Desenvolvimento de APIs REST com FastAPI e SQLAlchemy",
-        requisitos_tecnicos=["Python", "FastAPI"],
-        experiencia_minima="3 anos",
-        competencias_desejadas=["Trabalho em equipe"],
-    )
+    defaults = {
+        "titulo": "Dev Python Sênior",
+        "descricao": "Desenvolvimento de APIs REST com FastAPI e SQLAlchemy",
+        "requisitos_tecnicos": ["Python", "FastAPI"],
+        "experiencia_minima": "3 anos",
+        "competencias_desejadas": ["Trabalho em equipe"],
+    }
     defaults.update(kwargs)
     return VagaCreateSchema(**defaults)
 

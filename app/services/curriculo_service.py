@@ -1,8 +1,5 @@
-
-import os
 import uuid
 from pathlib import Path
-from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -39,9 +36,7 @@ def validar_pdf(conteudo: bytes, nome_arquivo: str, max_size_mb: int = 10) -> No
         raise ArquivoInvalidoError("O arquivo está vazio.")
 
     if not nome_arquivo.lower().endswith(".pdf"):
-        raise ArquivoInvalidoError(
-            "Formato inválido. Apenas arquivos PDF são aceitos."
-        )
+        raise ArquivoInvalidoError("Formato inválido. Apenas arquivos PDF são aceitos.")
 
     if not conteudo[:4].startswith(PDF_MAGIC_BYTES):
         raise ArquivoInvalidoError(
@@ -50,9 +45,7 @@ def validar_pdf(conteudo: bytes, nome_arquivo: str, max_size_mb: int = 10) -> No
 
     max_bytes = max_size_mb * 1024 * 1024
     if len(conteudo) > max_bytes:
-        raise ArquivoMuitoGrandeError(
-            f"O arquivo excede o limite de {max_size_mb} MB."
-        )
+        raise ArquivoMuitoGrandeError(f"O arquivo excede o limite de {max_size_mb} MB.")
 
     if len(conteudo) == 0:
         raise ArquivoInvalidoError("O arquivo está vazio.")
@@ -109,7 +102,7 @@ class CurriculoService:
                 erros.append(f"{nome}: {e}")
         return sucessos, erros
 
-    def listar_por_vaga(self, vaga_id: int) -> List[Curriculo]:
+    def listar_por_vaga(self, vaga_id: int) -> list[Curriculo]:
         return self.repo.listar_por_vaga(vaga_id)
 
     def obter(self, curriculo_id: int) -> Curriculo:
